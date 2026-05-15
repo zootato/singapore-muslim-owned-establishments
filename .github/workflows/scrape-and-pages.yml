@@ -17,11 +17,16 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python scraper.py --out data/establishments.json --max-pages 50
       - run: python tools/json_to_csv.py data/establishments.json data/establishments.csv
+      - name: Prepare API copies
+        run: |
+          mkdir -p api
+          cp data/establishments.json api/establishments.json
+          cp data/establishments.csv api/establishments.csv
       - name: Commit data changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/establishments.json data/establishments.csv
+          git add data/establishments.json data/establishments.csv api/establishments.json api/establishments.csv
           if git diff --cached --quiet; then
             echo "No data changes to commit"
           else
@@ -41,6 +46,11 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python scraper.py --out data/establishments.json --max-pages 50
       - run: python tools/json_to_csv.py data/establishments.json data/establishments.csv
+      - name: Prepare API copies
+        run: |
+          mkdir -p api
+          cp data/establishments.json api/establishments.json
+          cp data/establishments.csv api/establishments.csv
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:

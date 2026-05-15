@@ -49,3 +49,13 @@ python scraper.py --out data/establishments.json --max-pages 50 --delay 0.5 --de
 ```
 
 Data is written to `data/establishments.json` and the UI reads that file from `index.html`.
+
+## Endpoints (published via GitHub Pages)
+
+- JSON dataset: `/data/establishments.json` — e.g. https://<your-org>.github.io/singapore-muslim-owned-establishments/data/establishments.json
+- CSV dataset: `/data/establishments.csv` — e.g. https://<your-org>.github.io/singapore-muslim-owned-establishments/data/establishments.csv
+- Simple API endpoints (stable paths):
+	- `/api/establishments.json` — JSON alias for the dataset
+	- `/api/establishments.csv` — CSV alias for the dataset
+
+These `api/` files are created by the scheduled GitHub Actions job and published to the `gh-pages` branch so devs can fetch stable URLs.
