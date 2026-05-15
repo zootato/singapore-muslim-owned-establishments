@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 # Singapore Muslim-Owned Establishments
 
 Lightweight scraper to collect the "Muslim Owned" directory data from
@@ -7,8 +5,9 @@ https://www.muslimownedsg.com/explore/
 
 ## What this repo contains
 
-- `scraper.py` — simple HTML scraper using `requests` + `beautifulsoup4` that paginates search results and extracts place name and URL.
+- `scraper.py` — AJAX-powered scraper using `requests` + `beautifulsoup4` that fetches MyListing search results and extracts place name, URL, category, and category type.
 - `requirements.txt` — minimal Python dependencies.
+- `data/establishments.json` — scraped output.
 
 ## Quickstart
 
@@ -26,10 +25,12 @@ pip install -r requirements.txt
 python scraper.py --out data/establishments.json --max-pages 10
 ```
 
-3. Review and adjust selectors in `scraper.py` if the site layout changes.
+3. If needed, update selectors in `parse_results()` to match future layout changes.
 
 ## Notes
 
-- The site markup may change — update CSS selectors in `parse_results()` accordingly.
-- For large crawls, respect robots.txt and the site's terms of service.
-- If you'd like, I can add a GitHub Action to run this periodically and commit results to the repo.
+- This scraper uses the site’s AJAX `get_listings` action and parses the returned HTML.
+- Places under restaurants/cafes are classified as `food`; other categories are classified as `service`.
+- The scraper also visits individual record pages to capture address, latitude/longitude, telephone, email, price range, opening hours, tags, and description when available.
+- For larger crawls, respect the site’s terms of service and rate-limit requests.
+- Current output is closer to bot compatibility because it now includes address and coordinates, but the bot may still need cuisine or halal-type fields for full integration.

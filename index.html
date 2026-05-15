@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Singapore Muslim-Owned Establishments</title>
+    <style>
+      :root {
+        font-family: Inter, system-ui, sans-serif;
+        color: #111;
+        background: #f7f8fb;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: #1f2937;
+        color: #fff;
+        padding: 2rem 1.25rem;
+        text-align: center;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 2rem;
+      }
+      header p {
+        margin: 0.75rem auto 0;
+        max-width: 40rem;
+        color: #d1d5db;
+      }
+      .controls {
+        display: grid;
+        gap: 1rem;
+        max-width: 64rem;
+        margin: 1.5rem auto;
+        padding: 0 1.25rem;
+      }
+      .controls input,
+      .controls select {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.75rem;
+        background: #fff;
+        font-size: 1rem;
+      }
+      .summary {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+        color: #374151;
+      }
+      .grid {
+        display: grid;
+        gap: 1rem;
+        max-width: 64rem;
+        margin: 1rem auto 3rem;
+        padding: 0 1.25rem;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+      }
+      .card h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.15rem;
+      }
+      .card a {
+        color: #2563eb;
+        text-decoration: none;
+      }
+      .card .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        color: #6b7280;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #374151;
+      }
+      .tag.food {
+        background: #ecfdf5;
+        color: #166534;
+      }
+      .tag.service {
+        background: #eff6ff;
+        color: #1e40af;
+      }
+      .note {
+        margin-top: 1rem;
+        color: #4b5563;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Singapore Muslim-Owned Establishments</h1>
+      <p>
+        Browse businesses discovered from muslimownedsg.com. The site uses the
+        scraper's AJAX dataset and categorises entries into food or service.
+      </p>
+    </header>
+
+    <section class="controls">
+      <input
+        id="search"
+        type="search"
+        placeholder="Search by name, category or URL"
+        autocomplete="off"
+      />
+      <select id="filter" aria-label="Filter by category type">
+        <option value="all">All categories</option>
+        <option value="food">Food</option>
+        <option value="service">Service</option>
+      </select>
+    </section>
+
+    <div class="summary">
+      <p id="count">Loading establishments…</p>
+    </div>
+
+    <div class="grid" id="results"></div>
+
+    <div class="note">
+      Note: this dataset is scraped from the Muslim-Owned SG directory and is
+      intended for browsing. It is not currently schema-compatible with the Mak
+      Cik Fatimah bot without additional address and cuisine fields.
+    </div>
+
+    <script>
+      const searchInput = document.getElementById("search");
+      const filterSelect = document.getElementById("filter");
+      const resultsEl = document.getElementById("results");
+      const countEl = document.getElementById("count");
+      let data = [];
+
+      function render() {
+        const query = searchInput.value.trim().toLowerCase();
+        const filter = filterSelect.value;
+        const visible = data.filter((item) => {
+          const text =
+            `${item.name} ${item.category} ${item.url}`.toLowerCase();
+          const matchesFilter =
+            filter === "all" || item.category_type === filter;
+          return matchesFilter && (!query || text.includes(query));
+        });
+
+        countEl.textContent = `${visible.length} of ${data.length} establishments displayed`;
+        resultsEl.innerHTML = visible
+          .map(
+            (item) => `
+        <article class="card">
+          <h2><a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.name}</a></h2>
+          <div class="meta">
+            <span class="tag ${item.category_type}">${item.category_type || "service"}</span>
+            <span>${item.category || "Category not available"}</span>
+          </div>
+          <div class="meta"><a href="${item.url}" target="_blank" rel="noopener noreferrer">Visit listing</a></div>
+        </article>
+      `,
+          )
+          .join("");
+
+        if (!visible.length) {
+          resultsEl.innerHTML = "<p>No establishments matched your search.</p>";
+        }
+      }
+
+      async function loadData() {
+        try {
+          const res = await fetch("data/establishments.json");
+          data = await res.json();
+          render();
+        } catch (err) {
+          countEl.textContent = "Failed to load data.";
+          console.error(err);
+        }
+      }
+
+      searchInput.addEventListener("input", render);
+      filterSelect.addEventListener("change", render);
+      loadData();
+    </script>
+  </body>
+</html>
