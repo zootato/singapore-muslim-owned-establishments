@@ -81,10 +81,12 @@ def ajax_request(ajax_url, filters: dict, nonce: Optional[str]):
             html = j.get('html')
             if html:
                 return html
-            # some endpoints may put HTML under data or return list
+            # WordPress wp_send_json_success() wraps payload under 'data'
             data = j.get('data') or j.get('results')
             if isinstance(data, str):
                 return data
+            if isinstance(data, dict):
+                return data.get('html', '')
             return ''
     except Exception:
         pass
